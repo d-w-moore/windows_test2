@@ -23,5 +23,5 @@ jobs:
 
       - name: Run docker cmd
         run: |
-          docker pull --platform linux ubuntu:24.04
-          docker run ubuntu:24.04  ls -l /
+          #docker pull --platform linux ubuntu:24.04
+          docker run --rm busybox echo hello_world
