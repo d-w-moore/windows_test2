@@ -1,4 +1,8 @@
-Test-Containers:
+name: Ubuntu docker container on Windows
+on: [push]
+
+jobs:
+  build:
     runs-on: windows-latest
     steps:
 
