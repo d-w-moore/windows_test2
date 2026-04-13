@@ -1,0 +1,59 @@
+Test-Containers:
+    runs-on: windows-latest
+    steps:
+
+      - name: Install and Configure WSL 2
+        uses: vedantmgoyal9/setup-wsl2@main
+
+      - name: WSL - Setup Docker
+        shell: wsl-run {0}
+        run: |
+          # These are the official install instructions for Docker on Ubuntu
+          #  if this stops working, refer to https://docs.docker.com/engine/install/ubuntu/
+
+          # Add Docker's official GPG key:
+          sudo apt-get update
+          sudo apt-get install -y ca-certificates curl
+          sudo install -m 0755 -d /etc/apt/keyrings
+          sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+          sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+          # Add the repository to Apt sources:
+          echo \
+            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+            $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+            sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          sudo apt-get update
+
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+          sudo service docker start
+
+      - name: WSL - Run SQL Container
+        shell: wsl-run {0}
+        env:
+          DOCKER_USERNAME: ${{ vars.DOCKER_USERNAME }}
+          DOCKER_PULL_TOKEN: ${{ secrets.DOCKER_PULL_TOKEN }}
+          DOCKER_ORG_NAME: ${{ vars.DOCKER_ORG_NAME }}
+          # envs must also be listed below or they won't be available to WSL
+          WSLENV: DOCKER_USERNAME:DOCKER_PULL_TOKEN:DOCKER_ORG_NAME
+        run: |
+          sudo docker login -p $DOCKER_PULL_TOKEN -u $DOCKER_USERNAME
+
+          sudo docker run -d --name sql-db -p 14331:1433 $DOCKER_ORG_NAME/sql-db:latest
+
+      - name: WSL - Containers and Ports
+        shell: wsl-run {0}
+        run: |
+          echo "Ensure that containers are running..."
+          sudo docker ps
+
+          echo "Ensure that docker is listening on those ports..."
+          apt install net-tools
+          sudo netstat -tnlp
+
+      - name: Host - Containers Reachable
+        shell: pwsh
+        run: |
+          Test-NetConnection -ComputerName localhost -Port 14331;
+
