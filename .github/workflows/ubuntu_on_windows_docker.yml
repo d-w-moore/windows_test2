@@ -7,7 +7,7 @@ jobs:
     steps:
 
       - name: Install and Configure WSL 2
-        uses: vedantmgoyal9/setup-wsl2@main
+        uses: Vampire/setup-wsl@v7
 
       - name: WSL - Setup Docker
         shell: wsl-run {0}
