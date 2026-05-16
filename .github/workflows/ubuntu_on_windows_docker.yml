@@ -3,14 +3,10 @@ on: [push]
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
 
-      - name: Install and Configure WSL 2
-        uses: Vampire/setup-wsl@v7
-
-      - name: WSL - Setup Docker
-        shell: wsl-bash {0}
+      - name: ubuntu - Setup Docker
         run: |
           # These are the official install instructions for Docker on Ubuntu
           #  if this stops working, refer to https://docs.docker.com/engine/install/ubuntu/
@@ -28,14 +24,46 @@ jobs:
             $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
             sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-          docker image ls
-          echo "---"
-#         ping 13.226.209.2 -c1
-          #sudo apt-get -y update
+          sudo apt-get -y update
 
-#         sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 #         sudo service docker start
+
+##build:
+##  runs-on: windows-latest
+##  steps:
+
+##    - name: Install and Configure WSL 2
+##      uses: Vampire/setup-wsl@v7
+
+##    - name: WSL - Setup Docker
+##      shell: wsl-bash {0}
+##      run: |
+##        # These are the official install instructions for Docker on Ubuntu
+##        #  if this stops working, refer to https://docs.docker.com/engine/install/ubuntu/
+
+##        # Add Docker's official GPG key:
+##        sudo apt-get update
+##        sudo apt-get install -y ca-certificates curl
+##        sudo install -m 0755 -d /etc/apt/keyrings
+##        sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+##        sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+##        # Add the repository to Apt sources:
+##        echo \
+##          "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+##          $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+##          sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+##        docker image ls
+##        echo "---"
+##        ping 13.226.209.2 -c1
+##        #sudo apt-get -y update
+
+##        sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+##        sudo service docker start
 
 #     - name: WSL - Run SQL Container
 #       shell: wsl-run {0}
